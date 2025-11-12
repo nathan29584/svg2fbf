@@ -24,10 +24,11 @@ jobs:
         run: uvx ruff check .
 
       # TruffleHog: scan full repository history (fail on verified+unknown secrets)
+      # NOTE: The action automatically adds --fail, --no-update, --github-actions flags
       - name: Secrets scan (verified+unknown)
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
           extra_args: >
-            --results=verified,unknown --fail
+            --results=verified,unknown
             --exclude-paths=.trufflehog-exclude-paths.txt

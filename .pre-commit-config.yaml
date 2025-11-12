@@ -14,5 +14,5 @@ repos:
         name: trufflehog (scan for secrets)
         language: system
         pass_filenames: false
-        stages: [push]
+        stages: [pre-push]
         entry: bash -c 'if git rev-parse --verify origin/main >/dev/null 2>&1; then trufflehog git file://. --since-commit origin/main --branch HEAD --results=verified,unknown --fail --exclude-paths .trufflehog-exclude-paths.txt; else trufflehog filesystem --results=verified,unknown --fail --exclude-paths .trufflehog-exclude-paths.txt .; fi'

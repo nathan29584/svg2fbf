@@ -26,8 +26,9 @@ jobs:
         with:
           path: ./
           # Scan full repository history for verified+unknown secrets
+          # NOTE: The action automatically adds --fail, --no-update, --github-actions flags
           extra_args: >
-            --results=verified,unknown --fail
+            --results=verified,unknown
             --exclude-paths=.trufflehog-exclude-paths.txt
 
   # Code quality and linting
