@@ -223,6 +223,55 @@ test-session session_id:
     @echo "🧪 Running test session {{session_id}}..."
     PYTHONPATH=. uv run python tests/testrunner.py run {{session_id}}
 
+# Run ALL E2E test sessions (excludes unit tests)
+test-e2e-all:
+    #!/usr/bin/env python3
+    from pathlib import Path
+    import subprocess
+    import json
+
+    sessions_dir = Path("tests/sessions")
+    if not sessions_dir.exists():
+        print("❌ No test sessions found")
+        exit(1)
+
+    # Get all test session folders
+    sessions = sorted([d for d in sessions_dir.iterdir()
+                      if d.is_dir() and d.name.startswith("test_session_")])
+
+    if not sessions:
+        print("❌ No test sessions found")
+        exit(1)
+
+    print(f"🚀 Running {len(sessions)} E2E test sessions...\n")
+
+    passed = 0
+    failed = 0
+    for i, session in enumerate(sessions, 1):
+        # Extract session ID (e.g., "test_session_014_35frames" -> "14")
+        session_id = session.name.split("_")[2]
+
+        print(f"[{i}/{len(sessions)}] Running session {session_id} ({session.name})...")
+
+        result = subprocess.run(
+            ["env", "PYTHONPATH=.", "uv", "run", "python", "tests/testrunner.py", "run", session_id],
+            capture_output=True
+        )
+
+        if result.returncode == 0:
+            passed += 1
+            print(f"   ✅ PASSED\n")
+        else:
+            failed += 1
+            print(f"   ❌ FAILED\n")
+
+    print("=" * 70)
+    print(f"Results: {passed} passed, {failed} failed out of {len(sessions)} total")
+    print("=" * 70)
+
+    if failed > 0:
+        exit(1)
+
 # Run the most recent test session (convenience shortcut)
 test-rerun:
     #!/usr/bin/env python3
