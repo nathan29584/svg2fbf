@@ -18,6 +18,10 @@ from pathlib import Path
 
 import pytest
 
+# Add project root to path so tests package can be imported
+# This allows pytest to run without PYTHONPATH=. in CI environments
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from tests.utils.config import get_test_config
 
 
