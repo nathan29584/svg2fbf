@@ -94,7 +94,15 @@ dev = [
 [tool.pytest.ini_options]
 tmp_path_retention_count = 3
 tmp_path_retention_policy = "failed"
-addopts = "    --basetemp=/tmp/pytest-svg2fbf\n    --html-report\n    --image-tolerance=0.04\n    --pixel-tolerance=0.0039\n    --max-frames=50\n    -v\n"
+# Note: --basetemp removed for cross-platform compatibility
+# pytest will use system temp directory (tempfile.gettempdir())
+addopts = """
+    --html-report
+    --image-tolerance=0.04
+    --pixel-tolerance=0.0039
+    --max-frames=50
+    -v
+"""
 minversion = "6.0"
 testpaths = [
     "tests",
