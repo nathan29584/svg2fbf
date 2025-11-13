@@ -215,32 +215,41 @@ test-create name svg_dir:
 
 # List all test sessions
 test-sessions:
+    @echo "📋 Listing all test sessions..."
+    PYTHONPATH=. uv run python tests/testrunner.py list
+
+# Run a specific test session by ID
+test-session session_id:
+    @echo "🧪 Running test session {{session_id}}..."
+    PYTHONPATH=. uv run python tests/testrunner.py run {{session_id}}
+
+# Run the most recent test session (convenience shortcut)
+test-rerun:
     #!/usr/bin/env python3
     from pathlib import Path
+    import subprocess
     import json
 
-    results_dir = Path("tests/results")
-    if not results_dir.exists():
-        print("No test sessions found")
-    else:
-        sessions = sorted([d for d in results_dir.iterdir() if d.is_dir()])
-        if not sessions:
-            print("No test sessions found")
-        else:
-            print(f"📁 Found {len(sessions)} test session(s):\n")
-            for session in sessions:
-                metadata_file = session / "metadata.json"
-                if metadata_file.exists():
-                    metadata = json.loads(metadata_file.read_text())
-                    print(f"  • {session.name}")
-                    print(f"    Created: {metadata.get('creation_date', 'Unknown')}")
-                    print(f"    Frames: {metadata.get('frame_count', 'Unknown')}")
-                    print(f"    Path: {session}")
-                    print()
-                else:
-                    print(f"  • {session.name}")
-                    print(f"    Path: {session}")
-                    print()
+    sessions_dir = Path("tests/sessions")
+    if not sessions_dir.exists():
+        print("❌ No test sessions found")
+        exit(1)
+
+    # Get all session folders (test_session_NNN_Nframes format)
+    sessions = sorted([d for d in sessions_dir.iterdir()
+                      if d.is_dir() and d.name.startswith("test_session_")],
+                     key=lambda x: x.stat().st_mtime, reverse=True)
+
+    if not sessions:
+        print("❌ No test sessions found")
+        exit(1)
+
+    latest_session = sessions[0].name
+    # Extract session ID (e.g., "test_session_014_35frames" -> "14")
+    session_id = latest_session.split("_")[2]
+
+    print(f"🔄 Re-running latest test session: {session_id} ({latest_session})")
+    subprocess.run(["env", "PYTHONPATH=.", "uv", "run", "python", "tests/testrunner.py", "run", session_id])
 
 # Create random test session from examples directory
 random-test n:
