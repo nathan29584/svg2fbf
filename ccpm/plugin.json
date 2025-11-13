@@ -1,0 +1,486 @@
+{
+  "name": "ccpm",
+  "version": "1.0.0",
+  "displayName": "Claude Code PM",
+  "description": "Spec-driven development workflow with GitHub issues, Git worktrees, and parallel AI agents for shipping better software faster",
+  "author": {
+    "name": "Automaze",
+    "url": "https://automaze.io",
+    "github": "automazeio"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/automazeio/ccpm"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/automazeio/ccpm",
+  "keywords": [
+    "project-management",
+    "github-issues",
+    "worktree",
+    "parallel-agents",
+    "spec-driven",
+    "prd",
+    "epic",
+    "workflow"
+  ],
+  "engines": {
+    "claudeCode": ">=1.0.0"
+  },
+  "main": "ccpm",
+  "dependencies": {
+    "gh": ">=2.0.0",
+    "git": ">=2.0.0"
+  },
+  "commands": [
+    {
+      "name": "pm:init",
+      "description": "Install dependencies and configure GitHub",
+      "path": "commands/pm/init.md"
+    },
+    {
+      "name": "pm:help",
+      "description": "Show concise command summary",
+      "path": "commands/pm/help.md"
+    },
+    {
+      "name": "pm:prd-new",
+      "description": "Launch brainstorming for new product requirement",
+      "path": "commands/pm/prd-new.md"
+    },
+    {
+      "name": "pm:prd-parse",
+      "description": "Convert PRD to implementation epic",
+      "path": "commands/pm/prd-parse.md"
+    },
+    {
+      "name": "pm:prd-list",
+      "description": "List all PRDs",
+      "path": "commands/pm/prd-list.md"
+    },
+    {
+      "name": "pm:prd-edit",
+      "description": "Edit existing PRD",
+      "path": "commands/pm/prd-edit.md"
+    },
+    {
+      "name": "pm:prd-status",
+      "description": "Show PRD implementation status",
+      "path": "commands/pm/prd-status.md"
+    },
+    {
+      "name": "pm:epic-decompose",
+      "description": "Break epic into task files",
+      "path": "commands/pm/epic-decompose.md"
+    },
+    {
+      "name": "pm:epic-sync",
+      "description": "Push epic and tasks to GitHub",
+      "path": "commands/pm/epic-sync.md"
+    },
+    {
+      "name": "pm:epic-oneshot",
+      "description": "Decompose and sync in one command",
+      "path": "commands/pm/epic-oneshot.md"
+    },
+    {
+      "name": "pm:epic-list",
+      "description": "List all epics",
+      "path": "commands/pm/epic-list.md"
+    },
+    {
+      "name": "pm:epic-show",
+      "description": "Display epic and its tasks",
+      "path": "commands/pm/epic-show.md"
+    },
+    {
+      "name": "pm:epic-close",
+      "description": "Mark epic as complete",
+      "path": "commands/pm/epic-close.md"
+    },
+    {
+      "name": "pm:epic-edit",
+      "description": "Edit epic details",
+      "path": "commands/pm/epic-edit.md"
+    },
+    {
+      "name": "pm:epic-refresh",
+      "description": "Update epic progress from tasks",
+      "path": "commands/pm/epic-refresh.md"
+    },
+    {
+      "name": "pm:epic-start",
+      "description": "Start working on epic",
+      "path": "commands/pm/epic-start.md"
+    },
+    {
+      "name": "pm:epic-start-worktree",
+      "description": "Start epic in isolated worktree",
+      "path": "commands/pm/epic-start-worktree.md"
+    },
+    {
+      "name": "pm:epic-merge",
+      "description": "Merge completed epic",
+      "path": "commands/pm/epic-merge.md"
+    },
+    {
+      "name": "pm:epic-status",
+      "description": "Check epic status",
+      "path": "commands/pm/epic-status.md"
+    },
+    {
+      "name": "pm:issue-show",
+      "description": "Display issue and sub-issues",
+      "path": "commands/pm/issue-show.md"
+    },
+    {
+      "name": "pm:issue-status",
+      "description": "Check issue status",
+      "path": "commands/pm/issue-status.md"
+    },
+    {
+      "name": "pm:issue-start",
+      "description": "Begin work with specialized agent",
+      "path": "commands/pm/issue-start.md"
+    },
+    {
+      "name": "pm:issue-sync",
+      "description": "Push updates to GitHub",
+      "path": "commands/pm/issue-sync.md"
+    },
+    {
+      "name": "pm:issue-close",
+      "description": "Mark issue as complete",
+      "path": "commands/pm/issue-close.md"
+    },
+    {
+      "name": "pm:issue-reopen",
+      "description": "Reopen closed issue",
+      "path": "commands/pm/issue-reopen.md"
+    },
+    {
+      "name": "pm:issue-edit",
+      "description": "Edit issue details",
+      "path": "commands/pm/issue-edit.md"
+    },
+    {
+      "name": "pm:issue-analyze",
+      "description": "Analyze issue for parallelization",
+      "path": "commands/pm/issue-analyze.md"
+    },
+    {
+      "name": "pm:next",
+      "description": "Show next priority issue with epic context",
+      "path": "commands/pm/next.md"
+    },
+    {
+      "name": "pm:status",
+      "description": "Overall project dashboard",
+      "path": "commands/pm/status.md"
+    },
+    {
+      "name": "pm:standup",
+      "description": "Daily standup report",
+      "path": "commands/pm/standup.md"
+    },
+    {
+      "name": "pm:blocked",
+      "description": "Show blocked tasks",
+      "path": "commands/pm/blocked.md"
+    },
+    {
+      "name": "pm:in-progress",
+      "description": "List work in progress",
+      "path": "commands/pm/in-progress.md"
+    },
+    {
+      "name": "pm:sync",
+      "description": "Full bidirectional sync with GitHub",
+      "path": "commands/pm/sync.md"
+    },
+    {
+      "name": "pm:import",
+      "description": "Import existing GitHub issues",
+      "path": "commands/pm/import.md"
+    },
+    {
+      "name": "pm:validate",
+      "description": "Check system integrity",
+      "path": "commands/pm/validate.md"
+    },
+    {
+      "name": "pm:clean",
+      "description": "Archive completed work",
+      "path": "commands/pm/clean.md"
+    },
+    {
+      "name": "pm:search",
+      "description": "Search across all content",
+      "path": "commands/pm/search.md"
+    },
+    {
+      "name": "pm:test-reference-update",
+      "description": "Update test references",
+      "path": "commands/pm/test-reference-update.md"
+    },
+    {
+      "name": "context:create",
+      "description": "Create project-wide context",
+      "path": "commands/context/create.md"
+    },
+    {
+      "name": "context:update",
+      "description": "Update existing context",
+      "path": "commands/context/update.md"
+    },
+    {
+      "name": "context:prime",
+      "description": "Prime context for session",
+      "path": "commands/context/prime.md"
+    },
+    {
+      "name": "testing:prime",
+      "description": "Prime testing context",
+      "path": "commands/testing/prime.md"
+    },
+    {
+      "name": "testing:run",
+      "description": "Execute test suite",
+      "path": "commands/testing/run.md"
+    },
+    {
+      "name": "code-rabbit",
+      "description": "Code review assistant",
+      "path": "commands/code-rabbit.md"
+    },
+    {
+      "name": "prompt",
+      "description": "Custom prompt execution",
+      "path": "commands/prompt.md"
+    },
+    {
+      "name": "re-init",
+      "description": "Reinitialize with CCPM rules",
+      "path": "commands/re-init.md"
+    }
+  ],
+  "agents": [
+    {
+      "name": "parallel-worker",
+      "description": "Execute parallel work streams",
+      "path": "agents/parallel-worker.md"
+    },
+    {
+      "name": "test-runner",
+      "description": "Run and validate tests",
+      "path": "agents/test-runner.md"
+    },
+    {
+      "name": "file-analyzer",
+      "description": "Analyze file changes",
+      "path": "agents/file-analyzer.md"
+    },
+    {
+      "name": "code-analyzer",
+      "description": "Analyze code quality",
+      "path": "agents/code-analyzer.md"
+    }
+  ],
+  "rules": [
+    {
+      "name": "worktree-operations",
+      "description": "Git worktree operation guidelines",
+      "path": "rules/worktree-operations.md"
+    },
+    {
+      "name": "standard-patterns",
+      "description": "Standard coding patterns",
+      "path": "rules/standard-patterns.md"
+    },
+    {
+      "name": "github-operations",
+      "description": "GitHub integration guidelines",
+      "path": "rules/github-operations.md"
+    },
+    {
+      "name": "frontmatter-operations",
+      "description": "Frontmatter handling rules",
+      "path": "rules/frontmatter-operations.md"
+    },
+    {
+      "name": "datetime",
+      "description": "DateTime handling standards",
+      "path": "rules/datetime.md"
+    },
+    {
+      "name": "use-ast-grep",
+      "description": "AST-based code search",
+      "path": "rules/use-ast-grep.md"
+    },
+    {
+      "name": "branch-operations",
+      "description": "Git branch operation guidelines",
+      "path": "rules/branch-operations.md"
+    },
+    {
+      "name": "path-standards",
+      "description": "Path handling standards",
+      "path": "rules/path-standards.md"
+    },
+    {
+      "name": "agent-coordination",
+      "description": "Multi-agent coordination rules",
+      "path": "rules/agent-coordination.md"
+    },
+    {
+      "name": "strip-frontmatter",
+      "description": "Frontmatter stripping utilities",
+      "path": "rules/strip-frontmatter.md"
+    },
+    {
+      "name": "test-execution",
+      "description": "Test execution guidelines",
+      "path": "rules/test-execution.md"
+    }
+  ],
+  "hooks": [
+    {
+      "name": "bash-worktree-fix",
+      "description": "Fix bash worktree issues",
+      "path": "hooks/bash-worktree-fix.sh",
+      "trigger": "pre-bash"
+    }
+  ],
+  "scripts": [
+    {
+      "name": "pm/epic-show",
+      "description": "Show epic details",
+      "path": "scripts/pm/epic-show.sh"
+    },
+    {
+      "name": "pm/validate",
+      "description": "Validate PM setup",
+      "path": "scripts/pm/validate.sh"
+    },
+    {
+      "name": "pm/epic-status",
+      "description": "Check epic status",
+      "path": "scripts/pm/epic-status.sh"
+    },
+    {
+      "name": "pm/search",
+      "description": "Search PM content",
+      "path": "scripts/pm/search.sh"
+    },
+    {
+      "name": "pm/epic-list",
+      "description": "List all epics",
+      "path": "scripts/pm/epic-list.sh"
+    },
+    {
+      "name": "pm/init",
+      "description": "Initialize PM system",
+      "path": "scripts/pm/init.sh"
+    },
+    {
+      "name": "pm/help",
+      "description": "Show PM help",
+      "path": "scripts/pm/help.sh"
+    },
+    {
+      "name": "pm/standup",
+      "description": "Generate standup report",
+      "path": "scripts/pm/standup.sh"
+    },
+    {
+      "name": "pm/status",
+      "description": "Show PM status",
+      "path": "scripts/pm/status.sh"
+    },
+    {
+      "name": "pm/next",
+      "description": "Get next task",
+      "path": "scripts/pm/next.sh"
+    },
+    {
+      "name": "pm/prd-status",
+      "description": "Show PRD status",
+      "path": "scripts/pm/prd-status.sh"
+    },
+    {
+      "name": "pm/blocked",
+      "description": "Show blocked tasks",
+      "path": "scripts/pm/blocked.sh"
+    },
+    {
+      "name": "pm/prd-list",
+      "description": "List all PRDs",
+      "path": "scripts/pm/prd-list.sh"
+    },
+    {
+      "name": "pm/in-progress",
+      "description": "Show in-progress tasks",
+      "path": "scripts/pm/in-progress.sh"
+    },
+    {
+      "name": "test-and-log",
+      "description": "Test and log results",
+      "path": "scripts/test-and-log.sh"
+    },
+    {
+      "name": "fix-path-standards",
+      "description": "Fix path standard violations",
+      "path": "scripts/fix-path-standards.sh"
+    },
+    {
+      "name": "check-path-standards",
+      "description": "Check path standards",
+      "path": "scripts/check-path-standards.sh"
+    }
+  ],
+  "config": {
+    "directories": {
+      "context": "context",
+      "prds": "prds",
+      "epics": "epics"
+    },
+    "github": {
+      "requireAuth": true,
+      "extensions": [
+        "gh-sub-issue"
+      ]
+    }
+  },
+  "installation": {
+    "postInstall": "Run /pm:init to complete setup",
+    "requiredDependencies": [
+      {
+        "name": "gh",
+        "version": ">=2.0.0",
+        "description": "GitHub CLI for issue management"
+      },
+      {
+        "name": "git",
+        "version": ">=2.0.0",
+        "description": "Git for worktree operations"
+      }
+    ],
+    "optionalDependencies": [
+      {
+        "name": "gh-sub-issue",
+        "description": "GitHub CLI extension for parent-child issue relationships"
+      }
+    ]
+  },
+  "features": [
+    "Spec-driven development workflow",
+    "PRD to Epic to Task decomposition",
+    "GitHub Issues integration",
+    "Git worktree isolation",
+    "Parallel agent execution",
+    "Context preservation across sessions",
+    "Full traceability from idea to code",
+    "Intelligent task prioritization",
+    "Bidirectional sync with GitHub"
+  ]
+}
