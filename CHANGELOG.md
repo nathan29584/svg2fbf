@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merge dev into testing - feature complete, ready for testing
 - Merge testing into review - bugs fixed, ready for release candidate
 - Merge review into master - ready for stable release
+- Release stable 0.1.10
 
 ### Documentation
 
@@ -30,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add comprehensive AI agent workflow documentation
 - Add onion skin header image to animation examples
 - Correct branch workflow understanding and add hotfix backport
+
+### Miscellaneous
+
+- Update uv.lock for stable 0.1.10
 
 ## [0.1.9] - 2025-11-13
 
