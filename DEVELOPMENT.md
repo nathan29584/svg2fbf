@@ -114,10 +114,13 @@ AI agents should **ask human approval** before:
 Agents **ARE allowed** to:
 - ✅ Work on `dev` or `testing` branches
 - ✅ Create feature branches from `dev`
+- ✅ **Create PRs targeting `dev` branch ONLY**
 - ✅ Make commits with conventional commit format
 - ✅ Run tests, linting, and formatting
 - ✅ Create **Draft PRs** (not ready for merge)
 - ✅ Request human review
+
+**⚠️ IMPORTANT**: All PRs **MUST** target the `dev` branch. Never create PRs to `testing`, `review`, `master`, or `main`.
 
 ### 📋 Required Agent Workflow
 
@@ -226,6 +229,49 @@ svg2fbf uses a **4-stage branch workflow** to separate development phases and en
 dev → testing → review → master → main
  ↓       ↓        ↓        ↓       ↓
 alpha   beta     rc     stable  (mirror)
+```
+
+### 🔒 Pipeline Enforcement - ALL Development Starts on `dev`
+
+**CRITICAL RULE**: All development work and pull requests **MUST** target the `dev` branch.
+
+**✅ CORRECT Workflow:**
+```bash
+# All new features, bug fixes, and changes start here
+git checkout dev
+git checkout -b feature/my-feature
+# ... make changes ...
+git commit -m "feat: Add new feature"
+git push origin feature/my-feature
+
+# Create PR targeting dev branch
+gh pr create --base dev --title "feat: Add new feature"
+```
+
+**❌ WRONG - Never do this:**
+```bash
+# ❌ DON'T create PRs to testing, review, master, or main
+gh pr create --base master  # WRONG!
+gh pr create --base main    # WRONG!
+gh pr create --base review  # WRONG!
+```
+
+**Why this matters:**
+- **Quality gates** - Code must pass through testing → review → master stages
+- **CI validation** - Only review/master/main have strict CI enforcement
+- **Controlled promotion** - Features move through pipeline with `just promote-*`
+- **No bypassing** - Can't skip testing and review stages
+- **Clear history** - All features originate from dev
+
+**Branch Protection:**
+- `master`, `main`, `review` - Protected branches, no direct pushes
+- `testing` - Testing stage, receives promotions from dev
+- `dev` - **Entry point** for all development
+
+**The Only Way Forward:**
+```
+Your PR → dev → testing → review → master → main
+         (merge) (promote) (promote) (promote) (sync)
 ```
 
 ### Branch Workflow Table
