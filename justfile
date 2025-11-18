@@ -944,21 +944,19 @@ sync-main:
     echo "✅ main is now synced with master"
     echo "   (main and master are identical)"
 
-# Equalize all branches from current branch (with confirmation)
+# Equalize all branches from the most up-to-date branch (with confirmation)
 equalize:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    # Get current branch
-    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    # Get current branch for later restoration
+    ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
     # Define all branches to sync
     ALL_BRANCHES=("dev" "testing" "review" "master" "main")
 
-    echo "🔄 Sync All Branches"
+    echo "🔄 Sync All Branches (Auto-detect most up-to-date)"
     echo "═══════════════════════════════════════════════"
-    echo ""
-    echo "Current branch: $CURRENT_BRANCH"
     echo ""
 
     # Fetch latest from all remotes to get accurate commit counts
@@ -966,85 +964,96 @@ equalize:
     git fetch --all --quiet
     echo ""
 
-    # Check if any branch has commits that current branch doesn't have
-    BRANCHES_AHEAD=()
-    AHEAD_DETAILS=""
+    # Find the branch with the most recent commit (most up-to-date)
+    echo "🔍 Finding most up-to-date branch..."
+    MOST_RECENT_BRANCH=""
+    MOST_RECENT_TIMESTAMP=0
 
     for branch in "${ALL_BRANCHES[@]}"; do
-        if [ "$branch" != "$CURRENT_BRANCH" ]; then
-            # Check if branch exists
-            if git show-ref --verify --quiet "refs/heads/$branch"; then
-                # Count commits in branch that aren't in current branch
-                AHEAD_COUNT=$(git rev-list --count "$CURRENT_BRANCH..$branch" 2>/dev/null || echo "0")
-
-                if [ "$AHEAD_COUNT" -gt 0 ]; then
-                    BRANCHES_AHEAD+=("$branch")
-                    AHEAD_DETAILS+="  ⚠️  $branch has $AHEAD_COUNT commit(s) not in $CURRENT_BRANCH\n"
-
-                    # Show the most recent commit from that branch
-                    LATEST_COMMIT=$(git log --oneline -1 "$branch" 2>/dev/null || echo "unknown")
-                    AHEAD_DETAILS+="      Latest: $LATEST_COMMIT\n"
-                fi
+        if git show-ref --verify --quiet "refs/heads/$branch"; then
+            # Get commit timestamp for this branch
+            TIMESTAMP=$(git log -1 --format=%ct "$branch" 2>/dev/null || echo "0")
+            if [ "$TIMESTAMP" -gt "$MOST_RECENT_TIMESTAMP" ]; then
+                MOST_RECENT_TIMESTAMP=$TIMESTAMP
+                MOST_RECENT_BRANCH=$branch
             fi
         fi
     done
 
-    # Display warning if branches are ahead
-    if [ ${#BRANCHES_AHEAD[@]} -gt 0 ]; then
-        echo "⚠️  WARNING: Some branches have newer commits!"
-        echo "════════════════════════════════════════════════════════════"
-        echo -e "$AHEAD_DETAILS"
-        echo "If you continue, these commits will be LOST!"
-        echo ""
-        echo "💡 Consider switching to one of these branches first:"
-        for ahead_branch in "${BRANCHES_AHEAD[@]}"; do
-            echo "   git checkout $ahead_branch && just equalize"
-        done
-        echo ""
-        echo "════════════════════════════════════════════════════════════"
-        echo ""
+    if [ -z "$MOST_RECENT_BRANCH" ]; then
+        echo "❌ Error: Could not find any valid branch" >&2
+        exit 1
     fi
 
-    echo "This will sync the following branches from $CURRENT_BRANCH:"
+    # Show which branch was selected and its latest commit
+    LATEST_COMMIT=$(git log --oneline -1 "$MOST_RECENT_BRANCH")
+    COMMIT_DATE=$(git log -1 --format="%ci" "$MOST_RECENT_BRANCH")
+    echo "✅ Most up-to-date branch: $MOST_RECENT_BRANCH"
+    echo "   Latest commit: $LATEST_COMMIT"
+    echo "   Commit date: $COMMIT_DATE"
     echo ""
 
-    # Show which branches will be synced (exclude current branch)
+    # Show branch status comparison
+    echo "📊 Branch status (commits ahead/behind $MOST_RECENT_BRANCH):"
     for branch in "${ALL_BRANCHES[@]}"; do
-        if [ "$branch" != "$CURRENT_BRANCH" ]; then
-            echo "  • $branch ← $CURRENT_BRANCH (force sync)"
+        if [ "$branch" != "$MOST_RECENT_BRANCH" ]; then
+            if git show-ref --verify --quiet "refs/heads/$branch"; then
+                AHEAD=$(git rev-list --count "$branch..$MOST_RECENT_BRANCH" 2>/dev/null || echo "0")
+                BEHIND=$(git rev-list --count "$MOST_RECENT_BRANCH..$branch" 2>/dev/null || echo "0")
+                if [ "$AHEAD" -gt 0 ] || [ "$BEHIND" -gt 0 ]; then
+                    echo "  $branch: $BEHIND commit(s) behind, $AHEAD commit(s) ahead"
+                else
+                    echo "  $branch: ✅ up to date"
+                fi
+            fi
+        fi
+    done
+    echo ""
+
+    echo "This will sync the following branches from $MOST_RECENT_BRANCH:"
+    echo ""
+
+    # Show which branches will be synced
+    for branch in "${ALL_BRANCHES[@]}"; do
+        if [ "$branch" != "$MOST_RECENT_BRANCH" ]; then
+            echo "  • $branch ← $MOST_RECENT_BRANCH (force sync)"
         fi
     done
 
     echo ""
-    echo "⚠️  WARNING: This will FORCE-SYNC all branches to match $CURRENT_BRANCH!"
-    echo "   All other branches will be reset to the current state of $CURRENT_BRANCH."
+    echo "⚠️  WARNING: This will FORCE-SYNC all branches to match $MOST_RECENT_BRANCH!"
+    echo "   All other branches will be reset to the current state of $MOST_RECENT_BRANCH."
     echo ""
     read -p "Are you sure you want to continue? (yes/no): " -r
     echo ""
 
     if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
         echo "❌ Sync cancelled"
+        git checkout "$ORIGINAL_BRANCH" 2>/dev/null || true
         exit 0
     fi
 
     echo "🚀 Starting sync..."
     echo ""
 
+    # Checkout the most up-to-date branch first
+    git checkout "$MOST_RECENT_BRANCH"
+
     # Sync each branch
     for branch in "${ALL_BRANCHES[@]}"; do
-        # Skip current branch
-        if [ "$branch" = "$CURRENT_BRANCH" ]; then
-            echo "⏭️  Skipping $branch (current branch)"
+        # Skip source branch
+        if [ "$branch" = "$MOST_RECENT_BRANCH" ]; then
+            echo "⏭️  Skipping $branch (source branch)"
             continue
         fi
 
-        echo "📤 Syncing $branch from $CURRENT_BRANCH..."
+        echo "📤 Syncing $branch from $MOST_RECENT_BRANCH..."
 
         # Checkout the target branch
         git checkout "$branch"
 
-        # Force sync to current branch state
-        git reset --hard "$CURRENT_BRANCH"
+        # Force sync to most recent branch state
+        git reset --hard "$MOST_RECENT_BRANCH"
 
         # Push with force-with-lease
         git push origin "$branch" --force-with-lease
