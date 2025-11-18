@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <em>FBF.SVG format originated from <a href="https://github.com/opentoonz/opentoonz/issues/5346">OpenToonz Issue #5346</a> - bringing vector frame-by-frame animation to the web</em>
+  <em>FBF.SVG format is discussed here: <a href="https://github.com/opentoonz/opentoonz/issues/5346">OpenToonz Issue #5346</a> - bringing vector frame-by-frame animation to the web</em>
 </p>
 
 ---
@@ -129,9 +129,17 @@ The **svg2fbf** tool generates FBF.SVG Full conformant documents.
 ---
 
 ## FBF.SVG Official Logo:
-<p align="center">
-  <img src="assets/fbf_svg_logo_plain_white_glyphs.svg" alt="FBF.SVG Official Logo" width="100%" style="max-width: 400px; height: auto;"/>
-</p>
+
+<div align="center">
+  <a href="https://github.com/Emasoft/svg2fbf">
+    <picture>
+      <source media="(prefers-color-scheme: light)" srcset=".github/images/fbf_svg_logo_plain_black.svg">
+      <source media="(prefers-color-scheme: dark)" srcset=".github/images/fbf_svg_logo_plain_white.svg">
+      <img alt="FBF.SVG Official Logo" src=".github/images/logo-dark.svg" width="100%" style="max-width: 80%; height: auto;">
+    </picture>
+  </a>
+</div>
+
 
 ---
 
