@@ -944,7 +944,7 @@ sync-main:
     echo "✅ main is now synced with master"
     echo "   (main and master are identical)"
 
-# Equalize all branches from the most up-to-date branch (with confirmation)
+# Equalize all branches using promotion chain (dev→testing→review→master→main)
 equalize:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -952,124 +952,108 @@ equalize:
     # Get current branch for later restoration
     ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-    # Define all branches to sync
-    ALL_BRANCHES=("dev" "testing" "review" "master" "main")
+    # Define promotion chain: dev → testing → review → master → main
+    PROMOTION_CHAIN=("dev" "testing" "review" "master" "main")
 
-    echo "🔄 Sync All Branches (Auto-detect most up-to-date)"
+    echo "🔄 Equalize All Branches (Promotion Chain)"
     echo "═══════════════════════════════════════════════"
     echo ""
+    echo "Promotion flow: dev → testing → review → master → main"
+    echo ""
 
-    # Fetch latest from all remotes to get accurate commit counts
+    # Fetch latest from all remotes
     echo "📡 Fetching latest from remote..."
     git fetch --all --quiet
     echo ""
 
-    # Find the branch with the most recent commit (most up-to-date)
-    echo "🔍 Finding most up-to-date branch..."
-    MOST_RECENT_BRANCH=""
-    MOST_RECENT_TIMESTAMP=0
-
-    for branch in "${ALL_BRANCHES[@]}"; do
+    # Show current status of all branches
+    echo "📊 Current branch status:"
+    for branch in "${PROMOTION_CHAIN[@]}"; do
         if git show-ref --verify --quiet "refs/heads/$branch"; then
-            # Get commit timestamp for this branch
-            TIMESTAMP=$(git log -1 --format=%ct "$branch" 2>/dev/null || echo "0")
-            if [ "$TIMESTAMP" -gt "$MOST_RECENT_TIMESTAMP" ]; then
-                MOST_RECENT_TIMESTAMP=$TIMESTAMP
-                MOST_RECENT_BRANCH=$branch
-            fi
-        fi
-    done
-
-    if [ -z "$MOST_RECENT_BRANCH" ]; then
-        echo "❌ Error: Could not find any valid branch" >&2
-        exit 1
-    fi
-
-    # Show which branch was selected and its latest commit
-    LATEST_COMMIT=$(git log --oneline -1 "$MOST_RECENT_BRANCH")
-    COMMIT_DATE=$(git log -1 --format="%ci" "$MOST_RECENT_BRANCH")
-    echo "✅ Most up-to-date branch: $MOST_RECENT_BRANCH"
-    echo "   Latest commit: $LATEST_COMMIT"
-    echo "   Commit date: $COMMIT_DATE"
-    echo ""
-
-    # Show branch status comparison
-    echo "📊 Branch status (commits ahead/behind $MOST_RECENT_BRANCH):"
-    for branch in "${ALL_BRANCHES[@]}"; do
-        if [ "$branch" != "$MOST_RECENT_BRANCH" ]; then
-            if git show-ref --verify --quiet "refs/heads/$branch"; then
-                AHEAD=$(git rev-list --count "$branch..$MOST_RECENT_BRANCH" 2>/dev/null || echo "0")
-                BEHIND=$(git rev-list --count "$MOST_RECENT_BRANCH..$branch" 2>/dev/null || echo "0")
-                if [ "$AHEAD" -gt 0 ] || [ "$BEHIND" -gt 0 ]; then
-                    echo "  $branch: $BEHIND commit(s) behind, $AHEAD commit(s) ahead"
-                else
-                    echo "  $branch: ✅ up to date"
-                fi
-            fi
+            LATEST_COMMIT=$(git log --oneline -1 "$branch")
+            echo "  $branch: $LATEST_COMMIT"
+        else
+            echo "  $branch: ❌ does not exist"
         fi
     done
     echo ""
 
-    echo "This will sync the following branches from $MOST_RECENT_BRANCH:"
-    echo ""
-
-    # Show which branches will be synced
-    for branch in "${ALL_BRANCHES[@]}"; do
-        if [ "$branch" != "$MOST_RECENT_BRANCH" ]; then
-            echo "  • $branch ← $MOST_RECENT_BRANCH (force sync)"
-        fi
-    done
-
-    echo ""
-    echo "⚠️  WARNING: This will FORCE-SYNC all branches to match $MOST_RECENT_BRANCH!"
-    echo "   All other branches will be reset to the current state of $MOST_RECENT_BRANCH."
+    echo "⚠️  WARNING: This will merge through the promotion chain!"
+    echo "   Each branch will be merged into the next: dev→testing→review→master→main"
+    echo "   Merge conflicts will abort the process."
     echo ""
     read -p "Are you sure you want to continue? (yes/no): " -r
     echo ""
 
     if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
-        echo "❌ Sync cancelled"
+        echo "❌ Equalize cancelled"
         git checkout "$ORIGINAL_BRANCH" 2>/dev/null || true
         exit 0
     fi
 
-    echo "🚀 Starting sync..."
+    echo "🚀 Starting promotion chain merge..."
     echo ""
 
-    # Checkout the most up-to-date branch first
-    git checkout "$MOST_RECENT_BRANCH"
+    # Iterate through promotion chain: merge each branch into the next
+    for i in {0..3}; do
+        SOURCE_BRANCH="${PROMOTION_CHAIN[$i]}"
+        TARGET_BRANCH="${PROMOTION_CHAIN[$i+1]}"
 
-    # Sync each branch
-    for branch in "${ALL_BRANCHES[@]}"; do
-        # Skip source branch
-        if [ "$branch" = "$MOST_RECENT_BRANCH" ]; then
-            echo "⏭️  Skipping $branch (source branch)"
-            continue
+        echo "📤 Promoting: $SOURCE_BRANCH → $TARGET_BRANCH"
+
+        # Verify source branch exists
+        if ! git show-ref --verify --quiet "refs/heads/$SOURCE_BRANCH"; then
+            echo "  ❌ Error: Source branch '$SOURCE_BRANCH' does not exist" >&2
+            git checkout "$ORIGINAL_BRANCH" 2>/dev/null || true
+            exit 1
         fi
 
-        echo "📤 Syncing $branch from $MOST_RECENT_BRANCH..."
+        # Verify target branch exists
+        if ! git show-ref --verify --quiet "refs/heads/$TARGET_BRANCH"; then
+            echo "  ❌ Error: Target branch '$TARGET_BRANCH' does not exist" >&2
+            git checkout "$ORIGINAL_BRANCH" 2>/dev/null || true
+            exit 1
+        fi
 
-        # Checkout the target branch
-        git checkout "$branch"
+        # Checkout target branch
+        git checkout "$TARGET_BRANCH"
 
-        # Force sync to most recent branch state
-        git reset --hard "$MOST_RECENT_BRANCH"
-
-        # Push with force-with-lease
-        git push origin "$branch" --force-with-lease
-
-        echo "  ✅ $branch synced"
+        # Check if merge is needed
+        if git merge-base --is-ancestor "$SOURCE_BRANCH" "$TARGET_BRANCH"; then
+            echo "  ⏭️  Already up to date (no merge needed)"
+        else
+            # Attempt merge
+            if git merge "$SOURCE_BRANCH" --no-edit -m "chore: Merge $SOURCE_BRANCH into $TARGET_BRANCH (equalize)"; then
+                echo "  ✅ Merge successful"
+                # Push to remote
+                git push origin "$TARGET_BRANCH"
+                echo "  ✅ Pushed to remote"
+            else
+                echo ""
+                echo "❌ MERGE CONFLICT DETECTED!"
+                echo "   Conflict occurred when merging $SOURCE_BRANCH into $TARGET_BRANCH"
+                echo ""
+                echo "To resolve manually:"
+                echo "  1. Fix conflicts in the affected files"
+                echo "  2. Run: git add <resolved-files>"
+                echo "  3. Run: git commit"
+                echo "  4. Run: git push origin $TARGET_BRANCH"
+                echo "  5. Resume equalize from the next step"
+                echo ""
+                exit 1
+            fi
+        fi
         echo ""
     done
 
     # Return to original branch
-    echo "🔙 Returning to $CURRENT_BRANCH..."
-    git checkout "$CURRENT_BRANCH"
+    echo "🔙 Returning to $ORIGINAL_BRANCH..."
+    git checkout "$ORIGINAL_BRANCH"
 
     echo ""
-    echo "✅ All branches synced successfully!"
+    echo "✅ All branches equalized successfully!"
     echo ""
-    echo "All branches are now at the same commit as $CURRENT_BRANCH"
+    echo "Promotion chain complete: dev → testing → review → master → main"
 
 # Backport hotfix from master/main to current dev/testing/review branch (interactive, safe)
 backport-hotfix:
