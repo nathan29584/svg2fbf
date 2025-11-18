@@ -958,6 +958,39 @@ equalize:
     echo "🔄 Equalize All Branches (Promotion Chain)"
     echo "═══════════════════════════════════════════════"
     echo ""
+
+    # Check if there's an ongoing merge from a previous run
+    if [ -f .git/MERGE_HEAD ]; then
+        echo "⚠️  ONGOING MERGE DETECTED!"
+        echo ""
+        echo "There is an unfinished merge in progress on branch: $ORIGINAL_BRANCH"
+        echo ""
+
+        # Check if there are unresolved conflicts
+        if git diff --name-only --diff-filter=U | grep -q .; then
+            echo "❌ You still have unresolved merge conflicts:"
+            git diff --name-only --diff-filter=U | sed 's/^/  - /'
+            echo ""
+            echo "Please resolve the conflicts first, then run 'just equalize' again."
+            echo ""
+            echo "To resolve:"
+            echo "  1. Edit the conflicted files"
+            echo "  2. git add <resolved-files>"
+            echo "  3. git commit"
+            echo "  4. git push origin $ORIGINAL_BRANCH"
+            echo "  5. just equalize"
+            exit 1
+        else
+            echo "✅ Conflicts appear to be resolved, but merge not committed yet."
+            echo ""
+            echo "Please complete the merge:"
+            echo "  1. git commit"
+            echo "  2. git push origin $ORIGINAL_BRANCH"
+            echo "  3. just equalize"
+            exit 1
+        fi
+    fi
+
     echo "Promotion flow: dev → testing → review → master → main"
     echo ""
 
@@ -1029,16 +1062,46 @@ equalize:
                 git push origin "$TARGET_BRANCH"
                 echo "  ✅ Pushed to remote"
             else
+                # Merge conflict detected
                 echo ""
+                echo "═══════════════════════════════════════════════════════════════"
                 echo "❌ MERGE CONFLICT DETECTED!"
-                echo "   Conflict occurred when merging $SOURCE_BRANCH into $TARGET_BRANCH"
+                echo "═══════════════════════════════════════════════════════════════"
                 echo ""
-                echo "To resolve manually:"
-                echo "  1. Fix conflicts in the affected files"
-                echo "  2. Run: git add <resolved-files>"
-                echo "  3. Run: git commit"
-                echo "  4. Run: git push origin $TARGET_BRANCH"
-                echo "  5. Resume equalize from the next step"
+                echo "Conflict occurred when merging:"
+                echo "  Source: $SOURCE_BRANCH"
+                echo "  Target: $TARGET_BRANCH (current branch)"
+                echo ""
+
+                # Show conflicted files
+                echo "📁 Conflicted files:"
+                git diff --name-only --diff-filter=U | sed 's/^/  - /'
+                echo ""
+
+                echo "🔧 To resolve the conflicts:"
+                echo ""
+                echo "  1. Open the conflicted files listed above"
+                echo "  2. Look for conflict markers: <<<<<<< HEAD, =======, >>>>>>>"
+                echo "  3. Edit the files to resolve the conflicts"
+                echo "  4. Remove the conflict markers"
+                echo "  5. Test your changes if needed"
+                echo ""
+                echo "  6. Stage the resolved files:"
+                echo "     git add <resolved-files>"
+                echo ""
+                echo "  7. Complete the merge:"
+                echo "     git commit -m \"chore: Merge $SOURCE_BRANCH into $TARGET_BRANCH (equalize)\""
+                echo ""
+                echo "  8. Push the merge:"
+                echo "     git push origin $TARGET_BRANCH"
+                echo ""
+                echo "  9. Resume equalize to continue the promotion chain:"
+                echo "     just equalize"
+                echo ""
+                echo "═══════════════════════════════════════════════════════════════"
+                echo ""
+                echo "⚠️  You are currently on branch: $TARGET_BRANCH"
+                echo "   The merge is in progress. Resolve conflicts before switching branches."
                 echo ""
                 exit 1
             fi
