@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove empty test.yml workflow causing CI failures
 
+### Other
+
+- Release stable 0.1.12
+
 ### Documentation
 
 - Add UV tool management documentation and fix incorrect syntax
@@ -22,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix incorrect uv syntax in project documentation
 - Remove --force flag recommendation (can leave remnants)
 - Update GETTING_STARTED.md with correct uv installation
+
+### Miscellaneous
+
+- Update uv.lock for stable 0.1.12
 
 ## [0.1.11] - 2025-11-17
 
