@@ -133,9 +133,9 @@ The **svg2fbf** tool generates FBF.SVG Full conformant documents.
 <div align="center">
   <a href="https://github.com/Emasoft/svg2fbf">
     <picture>
-      <source media="(prefers-color-scheme: light)" srcset=".github/images/fbf_svg_logo_plain_black.svg">
-      <source media="(prefers-color-scheme: dark)" srcset=".github/images/fbf_svg_logo_plain_white.svg">
-      <img alt="FBF.SVG Official Logo" src=".github/images/logo-dark.svg" width="100%" style="max-width: 80%; height: auto;">
+      <source media="(prefers-color-scheme: light)" srcset=".github/images/fbf_svg_logo_plain_white.svg">
+      <source media="(prefers-color-scheme: dark)" srcset=".github/images/fbf_svg_logo_plain_black.svg">
+      <img alt="FBF.SVG Official Logo" src=".github/images/fbf_svg_logo_plain_white.svg" width="100%" style="max-width: 80%; height: auto;">
     </picture>
   </a>
 </div>
