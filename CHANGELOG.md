@@ -5,6 +5,37 @@ All notable changes to svg2fbf will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.14] - 2025-11-18
+
+### Added
+
+- Add generic GitHub branch protection with YAML config [**BREAKING**]
+
+### Fixed
+
+- Improve ccpm/ gitignore pattern
+
+### Changed
+
+- Separate CCPM plugin from svg2fbf project
+
+### Documentation
+
+- Add GitHub branch protection guide and setup script
+
+## [0.1.13] - 2025-11-18
+
+### Other
+
+- Release stable 0.1.13
+
+This release corrects a version regression where 0.1.10 was accidentally
+published to PyPI after 0.1.12 was already released. This happened due to
+git history cleanup that removed local knowledge of versions 0.1.11 and 0.1.12.
+
+Version 0.1.13 is identical to 0.1.12 in functionality, with only version
+number changes to restore proper version ordering on PyPI.
+
 ## [0.1.12] - 2025-11-17
 
 ### Fixed
