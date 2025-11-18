@@ -949,8 +949,54 @@ equalize:
     #!/usr/bin/env bash
     set -euo pipefail
 
+    # Verify we're in a git repository
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        echo "❌ Error: Not a git repository" >&2
+        exit 1
+    fi
+
     # Get current branch for later restoration
     ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+    # Check for detached HEAD state
+    if [ "$ORIGINAL_BRANCH" = "HEAD" ]; then
+        echo "❌ Error: You are in a detached HEAD state" >&2
+        echo "   Please checkout a branch first with: git checkout <branch-name>" >&2
+        exit 1
+    fi
+
+    # Check for uncommitted changes in current branch
+    if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+        echo "⚠️  Warning: You have uncommitted changes on branch: $ORIGINAL_BRANCH"
+        echo ""
+        git status --short
+        echo ""
+        echo "It's recommended to commit or stash changes before equalizing."
+        read -p "Continue anyway? (yes/no): " -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
+            echo "❌ Equalize cancelled"
+            exit 0
+        fi
+    fi
+
+    # Check for active worktrees that might have uncommitted changes
+    if command -v git worktree >/dev/null 2>&1; then
+        WORKTREE_COUNT=$(git worktree list | wc -l)
+        if [ "$WORKTREE_COUNT" -gt 1 ]; then
+            echo "⚠️  Warning: Multiple git worktrees detected ($WORKTREE_COUNT worktrees)"
+            echo "   Make sure all worktrees have committed their changes before equalizing."
+            echo ""
+            git worktree list
+            echo ""
+            read -p "Continue anyway? (yes/no): " -r
+            echo ""
+            if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
+                echo "❌ Equalize cancelled"
+                exit 0
+            fi
+        fi
+    fi
 
     # Define promotion chain: dev → testing → review → master → main
     PROMOTION_CHAIN=("dev" "testing" "review" "master" "main")
@@ -994,10 +1040,15 @@ equalize:
     echo "Promotion flow: dev → testing → review → master → main"
     echo ""
 
-    # Fetch latest from all remotes
+    # Fetch latest from all remotes with error handling
     echo "📡 Fetching latest from remote..."
-    git fetch --all --quiet
-    echo ""
+    if ! git fetch --all --quiet; then
+        echo "⚠️  Warning: Could not fetch from remote (network issue or no remote configured)" >&2
+        echo "   Continuing with local branches only..." >&2
+        echo ""
+    else
+        echo ""
+    fi
 
     # Show current status of all branches
     echo "📊 Current branch status:"
@@ -1058,9 +1109,15 @@ equalize:
             # Attempt merge
             if git merge "$SOURCE_BRANCH" --no-edit -m "chore: Merge $SOURCE_BRANCH into $TARGET_BRANCH (equalize)"; then
                 echo "  ✅ Merge successful"
-                # Push to remote
-                git push origin "$TARGET_BRANCH"
-                echo "  ✅ Pushed to remote"
+
+                # Push to remote with error handling
+                if git push origin "$TARGET_BRANCH"; then
+                    echo "  ✅ Pushed to remote"
+                else
+                    echo "  ⚠️  Warning: Failed to push to remote" >&2
+                    echo "     You may need to push manually later: git push origin $TARGET_BRANCH" >&2
+                    echo "     Continuing with local merges..." >&2
+                fi
             else
                 # Merge conflict detected
                 echo ""
